@@ -1,4 +1,5 @@
 import React from 'react';
+import '@/features/note/styles/NoteEditor.css';
 
 /**
  * TitleInput renders a Notion-style editable title input for notes.
@@ -16,7 +17,7 @@ interface TitleInputProps {
 
 const TitleInput: React.FC<TitleInputProps> = ({ value, onChange, placeholder = 'Untitled' }) => (
   <input
-    className="w-full pl-16 pr-16 text-left text-3xl md:text-4xl font-bold bg-transparent border-none outline-none py-2 mb-2 mt-8 text-gray-900 placeholder-gray-400 focus:shadow-[0_1px_0_0_#d1d5db] transition-shadow"
+    className="max-w-[800px] pt-24 w-full mx-auto px-3.5 sm:px-8 lg:px-16 text-left text-3xl md:text-4xl font-bold bg-transparent border-none outline-none py-2 mb-2 mt-8 text-gray-900 placeholder-gray-400"
     type="text"
     value={value}
     onChange={onChange}

@@ -5,11 +5,11 @@
   box-shadow: none;
   border-radius: 0;
   background: none;
-  /* Add minimal horizontal padding for comfortable typing */
-  padding-left: 4rem;
-  padding-right: 4rem;
-  padding-top: 0;
-  padding-bottom: 0;
+  /* Fluid width with centered container */
+  width: 100%;
+  margin: 0 auto 2rem;
+  /* Responsive horizontal padding */
+  padding: 0 1rem;
   position: relative;
 }
 
@@ -192,5 +192,34 @@
     font-size: 1.4rem;
     margin-top: 1.2rem;
     margin-bottom: 1rem;
+  }
+}
+
+/* Responsive padding breakpoints for perfect balance */
+@media (min-width: 640px) {
+  .tiptap {
+    /* Small devices: constrain to 640px */
+    max-width: 640px;
+    padding: 0 2rem;
+  }
+}
+@media (min-width: 768px) {
+  .tiptap {
+    /* Medium devices: constrain to 768px */
+    max-width: 768px;
+  }
+}
+@media (min-width: 1024px) {
+  .tiptap {
+    /* Large devices: constrain to 1024px */
+    max-width: 1024px;
+    padding: 0 4rem;
+  }
+}
+@media (min-width: 1280px) {
+  .tiptap {
+    /* Extra large devices: constrain to 1280px */
+    max-width: 1280px;
+    padding: 0 5rem;
   }
 }
