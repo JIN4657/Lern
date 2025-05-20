@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import { Note } from '@/types';
+import ActionBar from './ActionBar';
 
 type SearchBarProps = {
   query: string;
@@ -8,6 +9,8 @@ type SearchBarProps = {
   results: Note[];
   onResultClick?: (note: Note) => void;
   placeholder?: string;
+  onCreateContext?: (name: string) => void;
+  onCreateAssignment?: (title: string) => void;
 };
 
 
@@ -17,10 +20,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
   results,
   onResultClick,
   placeholder = 'Look for something...',
+  onCreateContext,
+  onCreateAssignment,
 }) => {
   return (
     <div className="w-full max-w-xl mx-auto">
-      <div className="bg-white border border-gray-200 rounded-2xl focus-within:ring-2 focus-within:ring-gray-300 transition-colors">
+      <div className="bg-white border border-gray-200 rounded-2xl transition-colors">
         {/* Search Input */}
         <div className="flex items-center px-4 py-4 h-14">
           <Search className="text-gray-400 w-5 h-5" />
@@ -35,22 +40,27 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
         {/* Results Dropdown integrated */}
         {query && (
-          <ul className="max-h-60 overflow-y-auto divide-y divide-gray-200">
-            {results.length > 0 ? (
-              results.map((note) => (
-                <li
-                  key={note.id}
-                  className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-50 transition cursor-pointer"
-                  onClick={() => onResultClick && onResultClick(note)}
-                >
-                  <span className="text-xl">{note.emoji}</span>
-                  <span className="text-sm text-gray-800">{note.title}</span>
-                </li>
-              ))
-            ) : (
-              <li className="px-4 py-3 text-sm text-gray-500">No notes found.</li>
+          <div>
+            {onCreateContext && onCreateAssignment && (
+              <>
+                
+              </>
             )}
-          </ul>
+            <ul className="max-h-60 overflow-y-auto divide-y divide-gray-200">
+              {results.length > 0 ? (
+                results.map((note) => (
+                  <li
+                    key={note.id}
+                    className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-50 transition cursor-pointer"
+                    onClick={() => onResultClick && onResultClick(note)}
+                  >
+                    <span className="text-xl">{note.emoji}</span>
+                    <span className="text-sm text-gray-800">{note.title}</span>
+                  </li>
+                ))
+              ) : null}
+            </ul>
+          </div>
         )}
       </div>
     </div>

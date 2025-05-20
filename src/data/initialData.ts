@@ -5,6 +5,13 @@ export const initialContexts: Context[] = [
   { id: "s1", name: "Computer Science", color: "#FF5630" },
   { id: "s2", name: "Mathematics", color: "#36B37E" },
   { id: "s3", name: "Physics", color: "#6554C0" },
+  { id: "s4", name: "Chemistry", color: "#FFAB00" },
+  { id: "s5", name: "Biology", color: "#0052CC" },
+  { id: "s6", name: "History", color: "#FF5630" },
+  { id: "s7", name: "English", color: "#36B37E" },
+  { id: "s8", name: "Spanish", color: "#6554C0" },
+  { id: "s9", name: "French", color: "#FFAB00" },
+  { id: "s10", name: "German", color: "#0052CC" },
 ];
 
 // Initial notes data
