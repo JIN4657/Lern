@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clipboard, Sliders, PlusCircle, Copy, X } from 'lucide-react';
+import { Clipboard, Sliders, PlusCircle, Copy, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Prompt, Segment } from './types';
+import { escapeHtml } from './utils/escapeHtml';
 
-// Define the Prompt type
-type Prompt = { id: string; title: string; content: string };
-
-export default function Page() {
+export default function Perop() {
   // State for storing all prompts
   const [prompts, setPrompts] = useState<Prompt[]>([
-    { id: '1', title: 'Greeting', content: 'Hello, world!' },
-    { id: '2', title: 'Personalized Greeting', content: 'Hello [name], welcome to [platform]!' },
+    { id: '1', title: 'Greeting', content: 'Hello, world!', description: 'Shows a basic greeting message.' },
+    { id: '2', title: 'Personalized Greeting', content: 'Hello [name], welcome to [platform]!', description: 'Greets a user by name on a platform.' },
   ]);
   // State for which prompt is currently selected for viewing
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -21,10 +20,18 @@ export default function Page() {
   // Form state for creating a new prompt
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
+  const [newDescription, setNewDescription] = useState('');
 
   // Toast notification state
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+
+  // State for folder menu
+  const [folderMenuOpen, setFolderMenuOpen] = useState(false);
+  // Example folder list (static for now)
+  const folders = ['All Prompts', 'Favorites', 'Archived'];
+  // State for selected folder
+  const [selectedFolder, setSelectedFolder] = useState(folders[0]);
 
   // Open the view modal for a prompt
   const openPrompt = (prompt: Prompt) => {
@@ -42,13 +49,14 @@ export default function Page() {
     setCreateModalOpen(false);
     setNewTitle('');
     setNewContent('');
+    setNewDescription('');
   };
 
   // Save a new prompt to state
   const handleSavePrompt = () => {
-    if (!newTitle.trim() || !newContent.trim()) return;
+    if (!newTitle.trim() || !newContent.trim() || !newDescription.trim()) return;
     const id = Date.now().toString();
-    setPrompts(prev => [...prev, { id, title: newTitle, content: newContent }]);
+    setPrompts(prev => [...prev, { id, title: newTitle, content: newContent, description: newDescription }]);
     closeCreateModal();
   };
 
@@ -63,7 +71,7 @@ export default function Page() {
   const segments = useMemo(() => {
     if (!selectedPrompt) return [];
     const regex = /\[([^\]]+)\]/g;
-    const segs: { type: 'text' | 'var'; value: string }[] = [];
+    const segs: Segment[] = [];
     let lastIndex = 0;
     let match: RegExpExecArray | null;
     const content = selectedPrompt.content;
@@ -142,17 +150,50 @@ export default function Page() {
 
   return (
     <div className="p-8">
-      {/* Header with Create Prompt button */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Prompt Vault</h1>
+        <div className="flex items-center space-x-2 relative">
+          {/* Use a div as a button wrapper to align title flush left */}
+          <div
+            role="button" tabIndex={0}
+            className="flex items-center space-x-1 text-lg font-semibold text-gray-700 rounded pl-0 pr-2 py-1 focus:outline-none min-w-0"
+            onClick={() => setFolderMenuOpen((open) => !open)}
+            aria-haspopup="menu"
+            aria-expanded={folderMenuOpen}
+          >
+            {/* Folder title */}
+            <span>{selectedFolder}</span>
+            {/* Chevron icon - ensure vertical centering with self-center */}
+            <ChevronRight size={20} className="ml-1 self-center" />
+          </div>
+          {/* Dropdown menu for folders */}
+          {folderMenuOpen && (
+            <div className="absolute left-10 top-8 z-10 bg-white border border-gray-200 rounded shadow-md min-w-[140px]">
+              {folders.map((folder) => (
+                <button
+                  key={folder}
+                  className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${selectedFolder === folder ? 'font-bold text-blue-600' : ''}`}
+                  onClick={() => {
+                    setSelectedFolder(folder);
+                    setFolderMenuOpen(false);
+                  }}
+                  type="button"
+                >
+                  {folder}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Minimal create prompt icon only, no container or shadow */}
         <motion.button
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="text-black hover:text-gray-700 transition-colors duration-200 focus:outline-none"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={openCreateModal}
+          aria-label="Create Prompt"
         >
-          <PlusCircle size={20} />
-          <span>Create Prompt</span>
+          <PlusCircle size={24} />
         </motion.button>
       </div>
 
@@ -171,13 +212,8 @@ export default function Page() {
                 {hasVars ? <Sliders size={16} className="mr-2" /> : <Clipboard size={16} className="mr-2" />}
                 <h2 className="font-semibold">{prompt.title}</h2>
               </div>
-              <p
-                className="text-sm text-gray-700"
-                style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-              >
-                {/* Show up to 3 lines of prompt, render vars as {var} */}
-                {prompt.content.replace(/\[([^\]]+)\]/g, '{$1}')}
-              </p>
+              {/* Display the prompt's description instead of content snippet */}
+              <p className="text-sm text-gray-700">{prompt.description}</p>
             </motion.div>
           );
         })}
@@ -269,7 +305,7 @@ export default function Page() {
                 <X size={20} />
               </button>
               {/* Editable title placeholder */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <input
                   type="text"
                   className="w-full text-2xl font-semibold mb-2 placeholder-gray-400 focus:outline-none bg-transparent border-none"
@@ -278,47 +314,52 @@ export default function Page() {
                   onChange={e => setNewTitle(e.target.value)}
                 />
               </div>
+              {/* Description input for the new prompt */}
+              <div className="mb-4">
+                <input
+                  type="text"
+                  className="w-full bg-gray-50 p-2 rounded-xl border border-gray-200 focus:ring focus:ring-blue-200 outline-none"
+                  placeholder="Description"
+                  value={newDescription}
+                  onChange={e => setNewDescription(e.target.value)}
+                />
+              </div>
               {/* Prompt content input with inline highlighting */}
               <div className="mb-6">
                 <div className="relative">
-                  {/* Hidden textarea for accessibility */}
-                  <textarea
-                    className="w-full absolute top-0 left-0 opacity-0 pointer-events-none h-full resize-none"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    value={newContent}
-                    readOnly
-                  />
-                  {/* Contenteditable area styled as soft, light rounded field */}
+                  {/* Highlight layer behind textarea, shows highlighted variables inline */}
                   <div
-                    className={`w-full bg-gray-50 p-4 rounded-xl border ${!newContent ? 'border-red-300' : 'border-gray-200'} focus-within:border-blue-300 focus-within:ring focus-within:ring-blue-200 min-h-[120px] whitespace-pre-wrap font-sans text-base outline-none`}
-                    contentEditable
-                    suppressContentEditableWarning
-                    spellCheck={false}
-                    style={{ fontFamily: 'inherit', fontSize: '1rem' }}
-                    onInput={e => setNewContent((e.target as HTMLDivElement).innerText)}
-                    onBlur={e => setNewContent((e.target as HTMLDivElement).innerText)}
+                    aria-hidden="true"
+                    className={`absolute top-0 left-0 w-full h-full bg-gray-50 p-4 rounded-xl border ${!newContent ? 'border-red-300' : 'border-gray-200'} whitespace-pre-wrap font-sans text-base pointer-events-none`}
+                    style={{ fontFamily: 'inherit', fontSize: '1rem', whiteSpace: 'pre-wrap' }}
                     dangerouslySetInnerHTML={{
                       __html: (() => {
-                        const escapeHtml = (str: string) =>
-                          str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        let html = '';
                         const regex = /\[([^\]]+)\]/g;
                         let lastIndex = 0;
                         let match;
-                        let html = '';
                         while ((match = regex.exec(newContent))) {
                           html += escapeHtml(newContent.slice(lastIndex, match.index));
                           html += `<span class='bg-yellow-200 text-yellow-900 px-1 rounded font-mono'>[${escapeHtml(match[1])}]</span>`;
                           lastIndex = match.index + match[0].length;
                         }
                         html += escapeHtml(newContent.slice(lastIndex));
-                        // Placeholder when empty
+                        // Show placeholder when empty
                         if (!newContent) {
                           html = '<span class="text-gray-400">Type your prompt here and define [variable] inline.</span>';
                         }
                         return html;
                       })(),
                     }}
+                  />
+                  {/* Transparent textarea on top for user input, maintains cursor position */}
+                  <textarea
+                    className="w-full bg-transparent p-4 rounded-xl border outline-none resize-none font-sans text-base"
+                    style={{ fontFamily: 'inherit', fontSize: '1rem', whiteSpace: 'pre-wrap' }}
+                    rows={6}
+                    placeholder="Type your prompt here and define [variable] inline."
+                    value={newContent}
+                    onChange={e => setNewContent((e.target as HTMLTextAreaElement).value)}
                   />
                 </div>
                 {/* Inline validation for empty content */}
@@ -357,6 +398,7 @@ export default function Page() {
                   onClick={() => {
                     setNewTitle('');
                     setNewContent('');
+                    setNewDescription('');
                   }}
                   type="button"
                 >
@@ -364,7 +406,7 @@ export default function Page() {
                 </motion.button>
                 <motion.button
                   className={`px-4 py-2 rounded ${
-                    newTitle && newContent && !(() => {
+                    newTitle && newContent && newDescription && !(() => {
                       // Check for duplicate variables
                       const regex = /\[([^\]]+)\]/g;
                       const foundVars: string[] = [];
@@ -377,11 +419,12 @@ export default function Page() {
                       ? 'bg-blue-600 text-white hover:bg-blue-700'
                       : 'bg-gray-400 text-gray-200 cursor-not-allowed'
                   }`}
-                  whileHover={{ scale: newTitle && newContent ? 1.05 : 1 }}
+                  whileHover={{ scale: newTitle && newContent && newDescription ? 1.05 : 1 }}
                   onClick={handleSavePrompt}
                   disabled={
                     !newTitle ||
                     !newContent ||
+                    !newDescription ||
                     (() => {
                       // Disable if duplicate variables
                       const regex = /\[([^\]]+)\]/g;
