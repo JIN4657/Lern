@@ -24,17 +24,6 @@ const HomeView: React.FC = () => {
     router.push(`/context/${ctx.id}`);
   };
 
-  // Handler to create a new context from search query
-  const handleCreateContext = (name: string) => {
-    const newCtx: Context = {
-      id: crypto.randomUUID(),
-      name,
-      color: '#888888', // default color
-    };
-    setContexts((prev) => [...prev, newCtx]);
-    router.push(`/context/${newCtx.id}`);
-  };
-
   // Filter notes based on search query
   const filteredNotes: Note[] = initialNotes.filter((note) => {
     const search = query.toLowerCase();
@@ -64,24 +53,20 @@ const HomeView: React.FC = () => {
 
   return (
     <div>
-      {/* Context selection menu */}
-      <div className="px-6 mb-6">
-        <ContextMenu
-          contexts={contexts}
-          onSelect={handleContextSelect}
-        />
-      </div>
-      <div className="px-6">
+      <div className="px-6 ">
         <SearchBar
           query={query}
           onQueryChange={handleQueryChange}
           results={filteredNotes}
           onResultClick={handleNoteClick}
-          onCreateContext={handleCreateContext}
-          onCreateAssignment={() => {}}
         />
       </div>
+      
       <RecentNote notes={recentNotes} onNoteClick={handleNoteClick} />
+      <ContextMenu
+        contexts={contexts}
+        onSelect={handleContextSelect}
+      />
     </div>
   );
 };
